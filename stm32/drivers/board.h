@@ -371,6 +371,10 @@ extern "C"
 
 /*#define BSP_USING_ON_CHIP_FLASH*/
 
+#define BSP_USING_PULSE_ENCODER
+#define BSP_USING_PULSE_ENCODER2
+#define BSP_USING_PULSE_ENCODER3
+
 /*-------------------------- ON_CHIP_FLASH CONFIG END --------------------------*/
 
 #ifdef __cplusplus

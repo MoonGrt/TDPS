@@ -88,6 +88,7 @@
 #define RT_USING_PWM
 #define RT_USING_SENSOR
 #define RT_USING_SENSOR_CMD
+#define RT_USING_PULSE_ENCODER
 
 /* Using USB */
 
