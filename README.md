@@ -55,7 +55,11 @@
   │ └─ main.py
   └─ /stm32/
     └─ /applications/
-      └─ main.c
+      ├─ encoder.c
+      ├─ main.c
+      ├─ motor.c
+      ├─ sr04.c
+      └─ test.c
 
 ```
 
