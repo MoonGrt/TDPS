@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MOTOR_UART_NAME "uart3"
+#define COMMU_UART_NAME "uart3"
 
-rt_thread_t uart_decoder_thread = NULL;
+rt_thread_t commu_decoder_thread = NULL;
 rt_device_t commu_uart;
 static rt_sem_t sem_decoder;
 extern rt_sem_t sem_motorctrl;
@@ -29,13 +29,13 @@ rt_err_t rx_callback(rt_device_t dev, rt_size_t size)
 
 uint8_t Rx_buffer[4];
 extern uint8_t sp_data[4];
-void uart_decoder_th(void *parameter)
+void commu_decoder_th(void *parameter)
 {
     uint8_t buffer;
     static uint8_t RecCmd_Step = 0, index = 0;
 
     /* step1：查找串口设备 */
-    commu_uart = rt_device_find(MOTOR_UART_NAME);
+    commu_uart = rt_device_find(COMMU_UART_NAME);
     /* step2：控制串口设备。通过控制接口传入命令控制字，与控制参数 */
     rt_device_control(commu_uart, RT_DEVICE_CTRL_CONFIG, (void *)&uart_config);
     /* step3：打开串口设备。以中断接收及轮询发送模式打开串口设备  中断接收数据 ==>> 之后可改为dma*/
@@ -86,9 +86,9 @@ int commu_init(void)
         return -1;
     }
 
-    uart_decoder_thread = rt_thread_create("uart_decoder_th", uart_decoder_th, RT_NULL, 512, 20, 5);
-    if (uart_decoder_thread != RT_NULL)   /* 如果获得线程控制块，启动这个线程 */
-        rt_thread_startup(uart_decoder_thread); // 启动线程
+    commu_decoder_thread = rt_thread_create("commu_decoder_th", commu_decoder_th, RT_NULL, 512, 20, 5);
+    if (commu_decoder_thread != RT_NULL)   /* 如果获得线程控制块，启动这个线程 */
+        rt_thread_startup(commu_decoder_thread); // 启动线程
     else
         return RT_ERROR;
 
