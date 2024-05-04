@@ -15,74 +15,10 @@
 #define PWM4_DEV_CHANNEL 4    /* PWM通道 */
 struct rt_device_pwm *pwm1_dev, *pwm2_dev, *pwm3_dev, *pwm4_dev; /* PWM设备句柄 */
 
-rt_thread_t uart_decoder_thread = NULL, motor_ctrl_thread = NULL;
-static rt_device_t motor_uart;
-static rt_sem_t sem_uart, sem_motorctrl;
+rt_thread_t motor_ctrl_thread = NULL;
+rt_sem_t sem_motorctrl; // 不加static让其他文件能extern
 
-struct serial_configure uart_config = {
-    BAUD_RATE_115200,   /* 115200 bits/s */
-    DATA_BITS_8,        /* 8 databits */
-    STOP_BITS_1,        /* 1 stopbit */
-    PARITY_NONE,        /* No parity  */
-    BIT_ORDER_LSB,      /* LSB first sent */
-    NRZ_NORMAL,         /* Normal mode */
-    RT_SERIAL_RB_BUFSZ, /* Buffer size */
-    0};
-
-// 接收回调函数
-rt_err_t rx_callback(rt_device_t dev, rt_size_t size)
-{
-    rt_sem_release(sem_uart);
-    return RT_EOK;
-}
-
-uint8_t Rx_buffer[4], sp_data[4];
-void uart_decoder_th(void *parameter)
-{
-    uint8_t buffer;
-    static uint8_t RecCmd_Step = 0, index = 0;
-
-    /* step1：查找串口设备 */
-    motor_uart = rt_device_find(MOTOR_UART_NAME);
-    /* step2：控制串口设备。通过控制接口传入命令控制字，与控制参数 */
-    rt_device_control(motor_uart, RT_DEVICE_CTRL_CONFIG, (void *)&uart_config);
-    /* step3：打开串口设备。以中断接收及轮询发送模式打开串口设备  中断接收数据 ==>> 之后可改为dma*/
-    rt_device_open(motor_uart, RT_DEVICE_FLAG_INT_RX);
-    rt_device_set_rx_indicate(motor_uart, rx_callback);
-
-    while (1)
-    {
-        while (rt_device_read(motor_uart, 0, &buffer, 1) != 1)
-            rt_sem_take(sem_uart, RT_WAITING_FOREVER);
-
-        switch (RecCmd_Step)
-        {
-            case 0:
-                if (buffer == 0xAA)
-                    RecCmd_Step = 1;
-                break;
-            case 1:
-                if (buffer == 0x55)
-                    RecCmd_Step = 2;
-                else
-                    RecCmd_Step = 0;
-                break;
-            case 2:
-                Rx_buffer[index] = buffer;
-                index++;
-                if (index == 4)
-                {
-                    memcpy(sp_data, Rx_buffer, 4);
-                    rt_sem_release(sem_motorctrl);
-                    RecCmd_Step = index = 0;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-}
-
+uint8_t sp_data[4];
 float sp_r, sp_l;
 void motor_ctrl_th(void *parameter)
 {
@@ -136,24 +72,12 @@ void motor_ctrl_th(void *parameter)
 
 int motor_init(void)
 {
-    sem_uart = rt_sem_create("sem_uart", 0, RT_IPC_FLAG_FIFO);
-    if (sem_uart == RT_NULL)
-    {
-        rt_kprintf("sem_uart create failed...\n");
-        return -1;
-    }
     sem_motorctrl = rt_sem_create("sem_motorctrl", 0, RT_IPC_FLAG_FIFO);
     if (sem_motorctrl == RT_NULL)
     {
         rt_kprintf("sem_motorctrl create failed...\n");
         return -1;
     }
-
-    uart_decoder_thread = rt_thread_create("uart_decoder_th", uart_decoder_th, RT_NULL, 512, 20, 5);
-    if (uart_decoder_thread != RT_NULL)   /* 如果获得线程控制块，启动这个线程 */
-        rt_thread_startup(uart_decoder_thread); // 启动线程
-    else
-        return RT_ERROR;
 
     motor_ctrl_thread = rt_thread_create("motor_ctrl_th", motor_ctrl_th, RT_NULL, 512, 20, 5);
     if (motor_ctrl_thread != RT_NULL)   /* 如果获得线程控制块，启动这个线程 */

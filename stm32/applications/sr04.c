@@ -8,6 +8,9 @@
 #define SR04_ECHO_PIN GET_PIN(B, 5)
 
 rt_thread_t sr04_thread = NULL;
+extern rt_device_t commu_uart;
+
+uint16_t distance, timestamp;
 
 void HAL_MspInit(void)
 {
@@ -59,8 +62,13 @@ static void sr04_th(void *parameter)
             return;
         }
         else
-            rt_kprintf("distance:%3d.%dcm, timestamp:%5d\n", sensor_data.data.proximity / 10, sensor_data.data.proximity % 10, sensor_data.timestamp);
-        rt_thread_mdelay(1000);
+        {
+            distance = (uint16_t)sensor_data.data.proximity;
+            timestamp = (uint16_t)sensor_data.timestamp;
+            rt_kprintf("distance:%3d.%dcm, timestamp:%5d\n", distance / 10, distance % 10, sensor_data.timestamp);
+            rt_device_write(commu_uart, 0, &distance, 2);
+        }
+        rt_thread_mdelay(500);
     }
 }
 
@@ -108,7 +116,11 @@ static void sr04_test(int argc, char** argv)
         return;
     }
     else
-        rt_kprintf("distance:%3d.%dcm, timestamp:%5d\n", sensor_data.data.proximity / 10, sensor_data.data.proximity % 10, sensor_data.timestamp);
+    {
+        distance = sensor_data.data.proximity;
+        timestamp = sensor_data.timestamp;
+        rt_kprintf("distance:%3d.%dcm, timestamp:%5d\n", distance / 10, distance % 10, sensor_data.timestamp);
+    }
 }
 MSH_CMD_EXPORT(sr04_test, sr04 test)
 
