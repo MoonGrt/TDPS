@@ -55,6 +55,7 @@
   │ └─ main.py
   └─ /stm32/
     └─ /applications/
+      ├─ commu.c
       ├─ encoder.c
       ├─ main.c
       ├─ motor.c
