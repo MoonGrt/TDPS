@@ -23,11 +23,11 @@ float sp_r, sp_l;
 void motor_ctrl_th(void *parameter)
 {
     rt_uint32_t period = 1000000, pulse1, pulse2, pulse3, pulse4; /* 1KHz周期为1ms，这里单位是纳秒ns，1ms等于10的6次方纳秒ns*/
-//    pulse1 = pulse2 = pulse3 = pulse4 = 0;
-    pulse1 = 900000;
-    pulse2 = 0;
-    pulse3 = 900000;
-    pulse4 = 0;
+    pulse1 = pulse2 = pulse3 = pulse4 = 0;
+//    pulse1 = 900000;
+//    pulse2 = 900000;
+//    pulse3 = 900000;
+//    pulse4 = 900000;
 
     /* 查找设备 */
     pwm1_dev = (struct rt_device_pwm *)rt_device_find(PWM1_DEV_NAME);
@@ -63,10 +63,10 @@ void motor_ctrl_th(void *parameter)
 //        rt_kprintf("%d %d %d %d\n", sp_data[0], sp_data[1], sp_data[2], sp_data[3]);
         rt_kprintf("%d %d\n", (int)(sp_l * 10000), (int)(sp_r * 10000));
 
-        pulse1 = (int)(sp_r * 10000);
-        pulse2 = 0;
+//        pulse1 = (int)(sp_r * 10000);  // 有问题
+        pulse2 = (int)(sp_r * 10000);
         pulse3 = (int)(sp_l * 10000);
-        pulse4 = 0;
+//        pulse4 = (int)(sp_l * 10000);  // 有问题
     }
 }
 

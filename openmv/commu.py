@@ -31,13 +31,18 @@ def get_distance(distance):
     return distance
 
 
+i = 0
 while(True):
-    sp_l = 12.34  # 你可以替换为任意浮点数
-    sp_r = 56.78  # 你可以替换为任意浮点数
+    sp_l = 20.12 + i * 10
+    sp_r = 20.34 + i * 10
     send_sp(sp_l, sp_r)
-    time.sleep(1)  # 延时一段时间再发送下一个浮点数
+#    send_sp(50, 30)
+    time.sleep(2)  # 延时一段时间再发送下一个浮点数
+
+    i = (i + 1) % 4
 
     # 轮询读取uart
     if uart.any():
         distance = get_distance(uart.read(2))
         print(distance)
+

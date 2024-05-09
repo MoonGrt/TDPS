@@ -52,6 +52,7 @@
   ├─ /data/
   ├─ /images/
   ├─ /openmv/
+  │ ├─ commu.py
   │ └─ main.py
   └─ /stm32/
     └─ /applications/
