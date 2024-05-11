@@ -11,7 +11,7 @@ rt_thread_t sr04_thread = NULL;
 extern rt_device_t commu_uart;
 
 uint16_t distance, timestamp;
-
+uint8_t send_data;
 void HAL_MspInit(void)
 {
   /* USER CODE BEGIN MspInit 0 */
@@ -66,7 +66,9 @@ static void sr04_th(void *parameter)
             distance = (uint16_t)sensor_data.data.proximity;
             timestamp = (uint16_t)sensor_data.timestamp;
             rt_kprintf("distance:%3d.%dcm, timestamp:%5d\n", distance / 10, distance % 10, sensor_data.timestamp);
-            rt_device_write(commu_uart, 0, &distance, 2);
+            send_data = (uint8_t)(distance / 10);
+            rt_kprintf("%d\n", send_data);
+            rt_device_write(commu_uart, 0, &send_data, 1);
         }
         rt_thread_mdelay(500);
     }

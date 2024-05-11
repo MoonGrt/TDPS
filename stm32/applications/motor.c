@@ -24,9 +24,9 @@ void motor_ctrl_th(void *parameter)
 {
     rt_uint32_t period = 1000000, pulse1, pulse2, pulse3, pulse4; /* 1KHz周期为1ms，这里单位是纳秒ns，1ms等于10的6次方纳秒ns*/
     pulse1 = pulse2 = pulse3 = pulse4 = 0;
-//    pulse1 = 900000;
-//    pulse2 = 900000;
-//    pulse3 = 900000;
+//    pulse1 = 600000;
+//    pulse2 = 700000;
+//    pulse3 = 800000;
 //    pulse4 = 900000;
 
     /* 查找设备 */
