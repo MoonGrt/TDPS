@@ -53,7 +53,8 @@
   ├─ /images/
   ├─ /openmv/
   │ ├─ commu.py
-  │ └─ main.py
+  │ ├─ main.py
+  │ └─ thread.py
   └─ /stm32/
     └─ /applications/
       ├─ commu.c
