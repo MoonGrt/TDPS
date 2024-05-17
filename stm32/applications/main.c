@@ -10,7 +10,7 @@ int main(void)
 {
     motor_init();
     commu_init();
-    sr04_init();
+//    sr04_init();
 //    encoder_init();
 
     /* set LED0 pin mode to output */

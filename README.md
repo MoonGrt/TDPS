@@ -61,8 +61,7 @@
       ├─ encoder.c
       ├─ main.c
       ├─ motor.c
-      ├─ sr04.c
-      └─ test.c
+      └─ sr04.c
 
 ```
 
