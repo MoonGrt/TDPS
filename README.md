@@ -15,7 +15,7 @@
 	</a>
 <h3 align="center">TDPS</h3>
 	<p align="center">
-	TDPS
+	The Autonomous Rover is an intelligent vehicle capable of navigating various environments autonomously. It detects lane boundaries to stay on track, recognizes directional arrows and traffic light colors to make informed decisions, and stops for pedestrians. The rover also avoids obstacles by maneuvering around them and can wirelessly signal a gate to open, continuing its journey once the gate is clear. This sophisticated system combines advanced sensing and decision-making technologies to achieve seamless autonomous navigation.
 	<br />
 	<a href="https://github.com/MoonGrt/TDPS"><strong>Explore the docs »</strong></a>
 	<br />
@@ -52,19 +52,7 @@
   ├─ /data/
   ├─ /images/
   ├─ /openmv/
-  │ ├─ Car.py
-  │ ├─ Commu.py
-  │ ├─ PID.py
-  │ ├─ test1.py
-  │ ├─ test2.py
-  │ └─ tracing_plus_color.py
   └─ /stm32/
-    └─ /applications/
-      ├─ commu.c
-      ├─ encoder.c
-      ├─ main.c
-      ├─ motor.c
-      └─ sr04.c
 
 ```
 
