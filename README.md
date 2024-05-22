@@ -51,16 +51,6 @@
   ├─ README.md
   ├─ /data/
   ├─ /images/
-  ├─ /openmv/
-  │ ├─ Car.py
-  │ ├─ Commu.py
-  │ ├─ NCC.py
-  │ ├─ photo.py
-  │ ├─ PID.py
-  │ ├─ test1.py
-  │ ├─ test2.py
-  │ ├─ test3.py
-  │ └─ tracing_plus_color.py
   ├─ /stm32/
   │ └─ /applications/
   │   ├─ commu.c
