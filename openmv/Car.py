@@ -48,7 +48,7 @@ from pid import PID
 dissatnce_pid = PID(p=0.4, i=0)
 
 # contant
-blue_threshold = (14, 100, -9, 31, -16, 21)  # L A B
+blue_threshold = (0, 100, -18, 28, -18, 63)
 red_threshold  = (91, 100, -16, 15, -7, 25)
 yellow_threshold = (46, 73, -83, -17, 14, 50)
 ROI = (0,60,160,60)
@@ -133,7 +133,8 @@ while(True):
     clock.tick()
 
     img = sensor.snapshot()
-#    img = img.to_grayscale()
+#    img = img.binary([blue_threshold])
+    img = img.to_grayscale()
 
 
 #    img_r = img.copy()
@@ -155,82 +156,76 @@ while(True):
 
 
 
-    img_grey = img.copy()
-    img_grey = img_grey.to_grayscale()
+#    img_grey = img.copy()
+#    img_grey = img_grey.to_grayscale()
+#    for t in templates1:  #如果与模板匹配
+#        template = image.Image(t) #template获取图片
+#        r = img_grey.find_template(template, 0.90, step=4, search=SEARCH_EX) #进行相关设置,可以设置roi缩小区域
+#        if r: #如果有目标
+#            img.draw_rectangle(r) #画矩形，框出匹配的目标
+#            direction = 1
+#            have_check = 1
+#            print("left")
+#    for t in templates2:
+#        template = image.Image(t)
+#        r = img_grey.find_template(template, 0.90, step=4, search=SEARCH_EX) #, roi=(10, 0, 60, 60))
+#        if r:
+#            img.draw_rectangle(r)
+#            direction = 1
+#            have_check = 1
+#            print("forward")
+#    for t in templates3:
+#        template = image.Image(t)
+#        r = img_grey.find_template(template, 0.90, step=4, search=SEARCH_EX) #, roi=(10, 0, 60, 60))
+#        if r:
+#            img.draw_rectangle(r)
+#            direction = 3
+#            print("right")
 
-    if not have_check:
-        for t in templates1:  #如果与模板匹配
-            template = image.Image(t) #template获取图片
-            r = img_grey.find_template(template, 0.90, step=4, search=SEARCH_EX) #进行相关设置,可以设置roi缩小区域
-            if r: #如果有目标
-                img.draw_rectangle(r) #画矩形，框出匹配的目标
-                direction = 1
-                have_check = 1
-                print("left")
+#    img_blue = img.binary([blue_threshold])
+#    img_blue.dilate(1)
+#    error = 0
+#    if direction == 1:
+#        his = get_sparse_his(img_blue, 0)
+#        if old_direction != direction:
+#            old_error = 30
+#        old_direction = direction
+#        error = get_error_filtered(his, alpha_value)
 
-        for t in templates2:
-            template = image.Image(t)
-            r = img_grey.find_template(template, 0.90, step=4, search=SEARCH_EX) #, roi=(10, 0, 60, 60))
-            if r:
-                img.draw_rectangle(r)
-                direction = 1
-                have_check = 1
-                print("forward")
+#    elif direction == 3:
+#        his = get_sparse_his(img_blue, 79)
+#        error = get_error_filtered(his, alpha_value)
 
-#        for t in templates3:
-#            template = image.Image(t)
-#            r = img_grey.find_template(template, 0.70, step=4, search=SEARCH_EX) #, roi=(10, 0, 60, 60))
-#            if r:
-#                img.draw_rectangle(r)
-#                direction = 3
-#                print("right")
+#    print('==', error, '==')
 
+#    distance_output = dissatnce_pid.get_pid(error, 1)
 
-
-    img_blue = img.binary([blue_threshold])
-    img_blue.dilate(1)
-    error = 0
-    if direction == 1:
-        his = get_sparse_his(img_blue, 0)
-        if old_direction != direction:
-            old_error = 30
-        old_direction = direction
-        error = get_error_filtered(his, alpha_value)
-
-    elif direction == 3:
-        his = get_sparse_his(img_blue, 79)
-        error = get_error_filtered(his, alpha_value)
-
-    print('==', error, '==')
-
-    distance_output = dissatnce_pid.get_pid(error, 1)
-
-    sp_l = SP_L - distance_output
-    sp_r = SP_R + distance_output
+#    sp_l = SP_L - distance_output
+#    sp_r = SP_R + distance_output
 
 
-    # 轮询读取uart，距离 cm
-    if uart.any():
-        distance_bytes = uart.read(1)  # 读取一个字节的数据
-        distance = int.from_bytes(distance_bytes, 'big')  # 将字节转换为整数
-        print(distance)
-        if distance > DIS_CONST:
-            direction = 3
-        else:
-            direction = 0
+#    # 轮询读取uart，距离 cm
+#    if uart.any():
+#        distance_bytes = uart.read(1)  # 读取一个字节的数据
+#        distance = int.from_bytes(distance_bytes, 'big')  # 将字节转换为整数
+#        print(distance)
+#        if distance > DIS_CONST:
+#            direction = 3
+#        else:
+#            direction = 0
 
 
-    if direction == 2:
-        send_sp(SP_L, SP_R)
-        pyb.delay(FOR_DELAY)
-        direction = 3
-        old_error = -30
-    elif direction == 0:
-        send_sp(0, 0)
-    else:
-        send_sp(sp_l, sp_r)
+#    if direction == 2:
+#        send_sp(SP_L, SP_R)
+#        pyb.delay(FOR_DELAY)
+#        direction = 3
+#        old_error = -30
+#    elif direction == 0:
+#        send_sp(0, 0)
+#    else:
+#        send_sp(sp_l, sp_r)
 
-    print(direction)
+#    print(direction)
 
 #    print(clock.fps())
 
