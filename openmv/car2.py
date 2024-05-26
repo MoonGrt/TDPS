@@ -42,8 +42,8 @@ from pid import PID
 distance_pid = PID(p=0.4, i=0)
 
 # contant
-blue_threshold = (0, 100, -18, 28, -18, 63)
-red_threshold  = (0, 45, 51, 79, 29, 66)
+blue_threshold = (0, 54, -17, 17, -43, 4) # (0, 100, -18, 28, -18, 63)
+red_threshold  = (0, 54, 43, 73, 32, 68)
 yellow_threshold = (74, 100, -20, 127, 53, 127) # (0, 100, -128, 64, -54, 127)
 green_threshold = (31, 100, -79, -38, -27, 63)
 ROW = 109  # 分析图像的第几行
@@ -52,17 +52,22 @@ edge_threshold = 5  # 巡线判断阙值
 FOR_DELAY = 12500  # 三向路口直线延迟时间
 SP_L = 30.8  # 直行时左轮速度
 SP_R = 35  # 直行时右轮速度
-DIS_CONST = 40  # 距离判断阙值
+DIS_CONST = 50  # 距离判断阙值
 alpha_value = 0.2  # 低通滤波器的alpha值
 
 # variable
-direction = 1
+direction = 3
 old_direction = 3
 old_output = 0
 old_error = -40
 sp_l = 0
 sp_r = 0
 have_check = 0
+
+# 发送左右轮速度数据
+def send_gate():
+    uart.writechar(int(170))  # 数据包头 AA
+    uart.writechar(int(1))
 
 # 发送左右轮速度数据
 def send_sp(sp_l, sp_r):  # 传入数据为pwm百分比，格式为 xx.xx（两位整数；两位小数）
@@ -78,8 +83,6 @@ def send_sp(sp_l, sp_r):  # 传入数据为pwm百分比，格式为 xx.xx（两�
     uart.writechar(min(100, int(sp_r_int)))  # 发送整数部分
     uart.writechar(int(round(sp_r_dec * 100)))  # 将小数部分乘以100后转化为整数发送, 两位小数
 
-
-
 def get_sparse_his(img, COL):
     global ROW
     line_data = []
@@ -88,7 +91,8 @@ def get_sparse_his(img, COL):
         for j in range(10): # row
             pixel = img.get_pixel(i+COL, j+ROW)
             # 检查像素是否为白色(1)或黑色(0)
-            if pixel == (0,0,0):  # 黑色
+#            if pixel == (0,0,0):  # 黑色
+            if pixel == (255,255,255):  # 白色
                 line_data[i] += 1
     return line_data
 
@@ -132,11 +136,8 @@ def get_error_filtered(his, alpha):
                 old_output = old_error  # 将old_error作为输出的一部分
 
 
-                print("          ", index)
+#                print("          ", index)
                 return limit_error(low_pass_filter(old_error, alpha))
-
-
-
 
     return limit_error(old_output)
 
@@ -176,13 +177,14 @@ def get_error_filtered(his, alpha):
 templates1 = ['/left1.pgm', '/left2.pgm']
 templates2 = ['/forward1.pgm', '/forward2.pgm']
 templates3 = ['/right1.pgm', '/right2.pgm']
-templates4 = ['/1.pgm', '/obstacle2.pgm']
+templates4 = ['/obstacle1.pgm', '/obstacle2.pgm', '/obstacle3.pgm', '/obstacle4.pgm', '/obstacle5.pgm']
 
 
 
 def track(img):
-    global old_direction, direction, old_error
+    global old_direction, direction, old_error,old_output
     img_blue = img.copy().binary([blue_threshold])
+#    img_blue = img.binary([blue_threshold])
     img_blue.dilate(1)
     error = 0
     if direction == 1:
@@ -193,12 +195,14 @@ def track(img):
         error = get_error_filtered(his, alpha_value)
     elif direction == 3:
         his = get_sparse_his(img_blue, 79)
+        if old_direction != direction:
+#            old_error = 30
+            old_output = -30
         error = get_error_filtered(his, alpha_value)
     old_direction = direction
 
     print('==', error, '==')
-    print('==', error, '==')
-#    print(direction)
+#    print('==', error, '==')
     distance_output = distance_pid.get_pid(error, 1)
 
     return SP_L - distance_output, SP_R + distance_output
@@ -266,16 +270,15 @@ def traffic_light(img):
         area = (c.x()-c.r(), c.y()-c.r(), 2*c.r(), 2*c.r())
         img.draw_rectangle(area, color = (255, 255, 255))
         if old_direction == 0:
-            direction = 3
+            direction = old_direction
             return 3
             print("green")
-
 
     return 2
 
 def pedestrian(img):
-    global direction
-#    print('In State 3')
+    global direction, state_cnt
+    print('In State 3')
 
     # 轮询读取uart，距离 cm
     if uart.any():
@@ -296,44 +299,83 @@ def pedestrian(img):
 #        r = img_grey.find_template(template, 0.90, step=4, search=SEARCH_EX) #, roi=(10, 0, 60, 60))
 #        if r:
 #            img.draw_rectangle(r)
-#            direction = 3
-#            #print("obstacle")
+#            print("obstacle")
 #            return 4
 
     return 3
 
-def state_4(img):
+get_around_flag = 0
+green_area = (0, 100, -12, 127, -60, 28)
+green_roi = [0,100,159,19]
+def get_around(img):
+    global get_around_flag
     print('In State 4')
-    send_sp(SP_L, SP_R+10)
-    pyb.delay(2000)
+    if not get_around_flag:
 
-    send_sp(SP_L,SP_R)
-    pyb.delay(5000)
+#        send_sp(SP_L, SP_R+30)
+#        pyb.delay(1000)
 
-    send_sp(SP_L+10, SP_R)
-    pyb.delay(2000)
+#        send_sp(SP_L,SP_R)
+#        pyb.delay(1000)
 
-    send_sp(SP_L,SP_R)
-    pyb.delay(10000)
+#        send_sp(SP_L+30, SP_R)
+#        pyb.delay(1000)
 
-    send_sp(SP_L+10, SP_R)
-    pyb.delay(2000)
+#        send_sp(SP_L,SP_R)
+#        pyb.delay(2500)
 
-    send_sp(SP_L, SP_R)
-    pyb.delay(5000)
+#        send_sp(SP_L+30, SP_R)
+#        pyb.delay(1000)
 
-    send_sp(SP_L, SP_R+10)
-    pyb.delay(2000)
+#        send_sp(SP_L,SP_R)
+#        pyb.delay(1000)
+
+#        send_sp(SP_L, SP_R)
+#        pyb.delay(1000)
+
+        get_around_flag = 1
+    else:
+        img_g = img.copy()
+        for c in img_g.find_blobs([green_threshold], roi=green_roi):
+            img.draw_rectangle(c[0:4]) # rect
+            #用矩形标记出目标颜色区域
+            img.draw_cross(c[5], c[6]) # cx, cy
+            return 5
     return 4
 
+delay_flag = 0
 def state_5(img):
-    global direction
-    print('In State 5')
-    return 6
+    global direction, delay_flag
+#    print('In State 5')
+    if not delay_flag:
+        send_sp(SP_L, SP_R-5)
+        pyb.delay(6000)
+        delay_flag = 1
+        send_gate()
+        pyb.delay(4000)
+    else:
+
+        # 轮询读取uart，距离 cm
+        if uart.any():
+            distance_bytes = uart.read(1)  # 读取一个字节的数据
+            distance = int.from_bytes(distance_bytes, 'big')  # 将字节转换为整数
+            print(distance)
+            if distance < DIS_CONST:
+                direction = 0
+                print('stop')
+            else:
+                direction = 3
+                print('go')
+                return 6
+#        pyb.delay(3000)
+    return 5
 
 def state_6(img):
     global direction
     print('In State 6')
+    send_sp(SP_L+10, SP_R+10)
+    pyb.delay(1000)
+    direction = 0
     return 6
 
 # 状态转移字典
@@ -341,13 +383,13 @@ state_functions = {
     1: check_arrow,
     2: traffic_light,
     3: pedestrian,
-    4: state_4,
+    4: get_around,
     5: state_5,
     6: state_6,
 }
 
 # 初始状态
-current_state = 2
+current_state = 4
 state_cnt = 0
 
 # 运行状态机
@@ -371,5 +413,5 @@ while True:
     else:
         send_sp(sp_l, sp_r)
 
-    print(direction)
-    print(old_direction)
+#    print(direction)
+#    print(old_direction)
