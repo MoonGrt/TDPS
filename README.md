@@ -51,8 +51,8 @@
   ├─ README.md
   ├─ /data/
   ├─ /images/
+  │ └─ logo.png
   ├─ /mbed/
-  │ └─ main.cpp
   ├─ /openmv/
   │ ├─ Car.py
   │ ├─ car2.py
@@ -74,7 +74,6 @@
   │   ├─ motor.c
   │   └─ sr04.c
   └─ /tool/
-    └─ convert.py
 
 ```
 
