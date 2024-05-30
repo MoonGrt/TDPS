@@ -22,5 +22,10 @@ def send_sp(sp_l, sp_r):  # 传入数据为pwm百分比，格式为 xx.xx（两�
     uart.writechar(min(100, int(sp_r_int)))  # 发送整数部分
     uart.writechar(int(round(sp_r_dec * 100)))  # 将小数部分乘以100后转化为整数发送, 两位小数
 
-send_sp(30, 30)
+# 发送左右轮速度数据
+def send_gate():
+    uart.writechar(int(170))  # 数据包头 AA
+    uart.writechar(int(1))
 
+
+send_gate()
