@@ -43,7 +43,7 @@ distance_pid = PID(p=0.4, i=0)
 
 # contant
 blue_threshold = (0, 67, -13, 70, -72, -13) # (0, 100, -18, 28, -18, 63)
-red_threshold  = (0, 54, 43, 73, 32, 68)
+red_threshold  = (0, 100, -45, 28, -128, 127)
 yellow_threshold = (74, 100, -20, 127, 53, 127) # (0, 100, -128, 64, -54, 127)
 green_threshold = (0, 100, -73, -16, 6, 127)
 ROW = 109  # 分析图像的第几行
@@ -56,7 +56,7 @@ DIS_CONST = 35  # 距离判断阙值
 alpha_value = 0.2  # 低通滤波器的alpha值
 
 # variable
-direction = 3
+direction = 1
 old_direction = 3
 old_output = 0
 old_error = -40
@@ -278,7 +278,7 @@ def traffic_light(img):
         if old_direction == 0:
             direction = 3
             print("green")
-            return 3
+            return 2
 
     return 2
 
@@ -296,7 +296,7 @@ def pedestrian(img):
             print('stop')
             print(state_cnt)
             state_cnt += 1
-            if state_cnt > 80:
+            if state_cnt > 160:
                 state_cnt = 0
                 return 4
         else:
@@ -340,7 +340,7 @@ def get_around(img):
         pyb.delay(750)
 
         send_sp(SP_L, SP_R)
-        pyb.delay(1000)
+        pyb.delay(1100)
 
 #        old_output = -20
         get_around_flag = 1
