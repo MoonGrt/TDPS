@@ -4,7 +4,7 @@ from image import SEARCH_EX, SEARCH_DS
 uart = machine.UART(3, 115200)
 
 # 更改此值以调整曝光。试试10.0 / 0.1 /等。
-EXPOSURE_TIME_SCALE = 2
+EXPOSURE_TIME_SCALE = 10
 
 sensor.reset()                      # 复位并初始化传感器。
 sensor.set_pixformat(sensor.RGB565) # 设置图像色彩格式，有RGB565色彩图和GRAYSCALE灰度图两种
@@ -64,7 +64,7 @@ sp_l = 0
 sp_r = 0
 have_check = 0
 
-# 发送左右轮速度数据
+# 发送
 def send_gate():
     uart.writechar(int(170))  # 数据包头 AA
     uart.writechar(int(1))
@@ -281,7 +281,7 @@ def pedestrian(img):
     print('In State 3')
 
     # 轮询读取uart，距离 cm
-    if uart.any():
+    while(uart.any()):
         distance_bytes = uart.read(1)  # 读取一个字节的数据
         distance = int.from_bytes(distance_bytes, 'big')  # 将字节转换为整数
         print(distance)
@@ -292,15 +292,15 @@ def pedestrian(img):
             direction = 3
             print('go')
 
-#    img_grey = img.copy()
-#    img_grey = img_grey.to_grayscale()
-#    for t in templates4:
-#        template = image.Image(t)
-#        r = img_grey.find_template(template, 0.90, step=4, search=SEARCH_EX) #, roi=(10, 0, 60, 60))
-#        if r:
-#            img.draw_rectangle(r)
-#            print("obstacle")
-#            return 4
+    img_grey = img.copy()
+    img_grey = img_grey.to_grayscale()
+    for t in templates4:
+        template = image.Image(t)
+        r = img_grey.find_template(template, 0.90, step=4, search=SEARCH_EX) #, roi=(10, 0, 60, 60))
+        if r:
+            img.draw_rectangle(r)
+            print("obstacle")
+            return 4
 
     return 3
 
@@ -312,25 +312,25 @@ def get_around(img):
     print('In State 4')
     if not get_around_flag:
 
-#        send_sp(SP_L, SP_R+30)
-#        pyb.delay(1000)
+        send_sp(SP_L, SP_R+30)
+        pyb.delay(1000)
 
-#        send_sp(SP_L,SP_R)
-#        pyb.delay(1000)
+        send_sp(SP_L,SP_R)
+        pyb.delay(1000)
 
-#        send_sp(SP_L+30, SP_R)
-#        pyb.delay(1000)
+        send_sp(SP_L+30, SP_R)
+        pyb.delay(1000)
 
-#        send_sp(SP_L,SP_R)
-#        pyb.delay(2500)
+        send_sp(SP_L,SP_R)
+        pyb.delay(2500)
 
-#        send_sp(SP_L+30, SP_R)
-#        pyb.delay(1000)
+        send_sp(SP_L+30, SP_R)
+        pyb.delay(1000)
 
-#        send_sp(SP_L,SP_R)
-#        pyb.delay(1000)
+        send_sp(SP_L,SP_R)
+        pyb.delay(1000)
 
-#        send_sp(SP_L, SP_R)
+        send_sp(SP_L, SP_R)
 #        pyb.delay(1000)
 
         get_around_flag = 1
@@ -389,7 +389,7 @@ state_functions = {
 }
 
 # 初始状态
-current_state = 4
+current_state = 1
 state_cnt = 0
 
 # 运行状态机

@@ -10,6 +10,7 @@ rt_device_t commu_uart;
 static rt_sem_t sem_decoder;
 extern rt_sem_t sem_motorctrl;
 extern rt_sem_t sem_infrared;
+extern int8_t stop_flag;
 
 struct serial_configure uart_config = {
     BAUD_RATE_115200,   /* 115200 bits/s */
@@ -60,6 +61,7 @@ void commu_decoder_th(void *parameter)
                 else if (buffer == 0x01)
                 {
                     rt_sem_release(sem_infrared);
+                    stop_flag = 1;
                     RecCmd_Step = 0;
                 }
                 else

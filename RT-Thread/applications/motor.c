@@ -61,7 +61,7 @@ void motor_ctrl_th(void *parameter)
         sp_l = (float)sp_data[0] + (float)sp_data[1] / 100.0; // 将整数部分和小数部分合并
         sp_r = (float)sp_data[2] + (float)sp_data[3] / 100.0; // 将整数部分和小数部分合并
 //        rt_kprintf("%d %d %d %d\n", sp_data[0], sp_data[1], sp_data[2], sp_data[3]);
-        rt_kprintf("%d %d\n", (int)(sp_l * 10000), (int)(sp_r * 10000));
+//        rt_kprintf("%d %d\n", (int)(sp_l * 10000), (int)(sp_r * 10000));
 
 //        pulse1 = (int)(sp_r * 10000);  // 有问题
         pulse2 = (int)(sp_r * 10000);

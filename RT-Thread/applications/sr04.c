@@ -68,10 +68,14 @@ static void sr04_th(void *parameter)
         {
             distance = (uint16_t)sensor_data.data.proximity;
             timestamp = (uint16_t)sensor_data.timestamp;
-//            rt_kprintf("distance:%3d.%dcm, timestamp:%5d\n", distance / 10, distance % 10, sensor_data.timestamp);
+            rt_kprintf("distance:%3d.%dcm, timestamp:%5d\n", distance / 10, distance % 10, sensor_data.timestamp);
             send_data = (uint8_t)(distance / 10);
-//            rt_kprintf("%d\n", send_data);
-            rt_device_write(commu_uart, 0, &send_data, 1);
+            rt_kprintf("%d\n", send_data);
+//            rt_kprintf("%d\n", stop_flag);
+            if (stop_flag)
+                rt_device_write(commu_uart, 0, &stop_data, 1);
+            else
+                rt_device_write(commu_uart, 0, &send_data, 1);
         }
         rt_thread_mdelay(100);
     }
@@ -82,7 +86,7 @@ int sr04_init(void)
     /* B4引脚重定义  */
     HAL_MspInit();
 
-    sr04_thread = rt_thread_create("sr04_th", sr04_th, RT_NULL, 512, 24, 5);
+    sr04_thread = rt_thread_create("sr04_th", sr04_th, RT_NULL, 512, 20, 5);
     if (sr04_thread != RT_NULL)   /* 如果获得线程控制块，启动这个线程 */
         rt_thread_startup(sr04_thread); // 启动线程
     else

@@ -8,6 +8,7 @@
 rt_thread_t infrared_thread = NULL;
 rt_device_t infrared_uart;
 rt_sem_t sem_infrared;
+int8_t stop_flag = 0;
 
 struct serial_configure infrared_uart_config = {
     BAUD_RATE_9600,   /* 115200 bits/s */
@@ -28,7 +29,7 @@ rt_err_t infrared_rx_callback(rt_device_t dev, rt_size_t size)
         rt_kprintf("send\n");
     if (revc_data == 0x22)
     {
-//        stop_flag = 0;
+        stop_flag = 0;
         rt_kprintf("go go go\n");
     }
     return RT_EOK;
@@ -48,9 +49,12 @@ void infrared_th(void *parameter)
     rt_sem_take(sem_infrared, RT_WAITING_FOREVER);
     while (1)
     {
-        rt_kprintf("let me go\n");
-        rt_device_write(infrared_uart, 0, &send_code, 5);
-        rt_thread_mdelay(1500);
+        if (stop_flag)
+        {
+            rt_kprintf("let me go\n");
+            rt_device_write(infrared_uart, 0, &send_code, 5);
+            rt_thread_mdelay(5000);
+        }
 //        if()
     }
 }
@@ -64,7 +68,7 @@ int infrared_init(void)
         return -1;
     }
 
-    infrared_thread = rt_thread_create("infrared_th", infrared_th, RT_NULL, 512, 20, 5);
+    infrared_thread = rt_thread_create("infrared_th", infrared_th, RT_NULL, 512, 21, 5);
     if (infrared_thread != RT_NULL)   /* 如果获得线程控制块，启动这个线程 */
         rt_thread_startup(infrared_thread); // 启动线程
     else
