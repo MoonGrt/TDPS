@@ -201,7 +201,7 @@ def track(img):
         error = get_error_filtered(his, alpha_value)
     old_direction = direction
 
-    print('==', error, '==')
+#    print('==', error, '==')
     distance_output = distance_pid.get_pid(error, 1)
 
     return SP_L - distance_output, SP_R + distance_output
@@ -209,42 +209,42 @@ def track(img):
 
 def check_arrow(img):
     global direction, state_cnt
-    print('In State 1')
+#    print('In State 1')
 
     img_grey = img.copy()
     img_grey = img_grey.to_grayscale()
 
-    for t in templates2:
-        template = image.Image(t)
-        r = img_grey.find_template(template, 0.90, step=4, search=SEARCH_EX) #, roi=(10, 0, 60, 60))
-        if r:
-            img.draw_rectangle(r)
-            direction = 2
-            print("forward")
-            return 2
-    for t in templates1:  # 如果与模板匹配
-        template = image.Image(t) # template获取图片
-        r = img_grey.find_template(template, 0.90, step=4, search=SEARCH_EX) # 进行相关设置,可以设置roi缩小区域
-        if r: # 如果有目标
-            img.draw_rectangle(r) # 画矩形，框出匹配的目标
-            direction = 1
-            print("left")
-            return 2
-
-#    for t in templates3:
+#    for t in templates2:
 #        template = image.Image(t)
 #        r = img_grey.find_template(template, 0.90, step=4, search=SEARCH_EX) #, roi=(10, 0, 60, 60))
 #        if r:
 #            img.draw_rectangle(r)
-#            direction = 3
-#            print("right")
+#            direction = 2
+#            print("forward")
 #            return 1
+#    for t in templates1:  # 如果与模板匹配
+#        template = image.Image(t) # template获取图片
+#        r = img_grey.find_template(template, 0.90, step=4, search=SEARCH_EX) # 进行相关设置,可以设置roi缩小区域
+#        if r: # 如果有目标
+#            img.draw_rectangle(r) # 画矩形，框出匹配的目标
+#            direction = 1
+#            print("left")
+#            return 1
+
+    for t in templates3:
+        template = image.Image(t)
+        r = img_grey.find_template(template, 0.90, step=4, search=SEARCH_EX) #, roi=(10, 0, 60, 60))
+        if r:
+            img.draw_rectangle(r)
+            direction = 3
+            print("right")
+            return 1
 
     state_cnt += 1
     if state_cnt > 500:
         state_cnt = 0
-        return 2
-    print(state_cnt)
+        return 1
+#    print(state_cnt)
     return 1
 
 
@@ -284,7 +284,7 @@ def traffic_light(img):
 
 def pedestrian(img):
     global direction, state_cnt
-    print('In State 3')
+#    print('In State 3')
 
     # 轮询读取uart，距离 cm
     while(uart.any()):
@@ -320,6 +320,42 @@ get_around_flag = 0
 green_area = (0, 100, -12, 127, -60, 28)
 green_roi = [80,80,79,39]
 
+#def get_around(img):
+#    global get_around_flag, old_output, direction
+#    print('In State 4')
+#    if not get_around_flag:
+#        send_sp(0, SP_R+30)
+#        pyb.delay(900)
+
+#        send_sp(SP_L, SP_R)
+#        pyb.delay(1500)
+
+#        send_sp(SP_L+30, 0)
+#        pyb.delay(1200)
+
+#        send_sp(SP_L, SP_R)
+#        pyb.delay(1500)
+
+#        send_sp(SP_L+10, 0)
+#        pyb.delay(750)
+
+#        send_sp(SP_L, SP_R)
+#        pyb.delay(1100)
+
+##        old_output = -20
+#        get_around_flag = 1
+#        direction = 3
+#    else:
+#        print("green_detect")
+#        img_g = img.copy()
+#        for c in img_g.find_blobs([green_threshold], roi=green_roi):
+##        for c in img_g.find_blobs([green_threshold]):
+#            img.draw_rectangle(c[0:4]) # rect
+#            #用矩形标记出目标颜色区域
+#            img.draw_cross(c[5], c[6]) # cx, cy
+#            return 5
+#    return 4
+
 def get_around(img):
     global get_around_flag, old_output, direction
     print('In State 4')
@@ -343,7 +379,6 @@ def get_around(img):
         pyb.delay(1100)
 
 #        old_output = -20
-        get_around_flag = 1
         direction = 3
     else:
         print("green_detect")
@@ -355,6 +390,7 @@ def get_around(img):
             img.draw_cross(c[5], c[6]) # cx, cy
             return 5
     return 4
+
 
 delay_flag = 0
 def state_5(img):
@@ -414,7 +450,7 @@ state_functions = {
 }
 
 # 初始状态
-current_state = 1
+current_state = 3
 state_cnt = 0
 
 # 运行状态机
@@ -425,7 +461,7 @@ while True:
 #    img = img.to_grayscale()
 
 
-    sp_l, sp_r = track(img)
+#    sp_l, sp_r = track(img)
     current_state = state_functions[current_state](img)
 
 
@@ -439,5 +475,5 @@ while True:
     else:
         send_sp(sp_l, sp_r)
 
-    print(direction)
+#    print(direction)
 #    print(old_direction)

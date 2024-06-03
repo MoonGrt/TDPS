@@ -1,7 +1,7 @@
 import sys
 import os
 import shutil
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit, QMessageBox, QFileDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit, QMessageBox, QFileDialog, QHBoxLayout
 from PIL import Image
 
 class FileConverter(QWidget):
@@ -21,15 +21,21 @@ class FileConverter(QWidget):
         # 设置默认目录为 F:\Study\TDPS\project\data\arrow
         self.default_folder = r'F:\Study\TDPS\project\data\arrow'
         self.folder_input = QLineEdit(self.default_folder)
-        layout.addWidget(self.folder_input)
 
         self.browse_button = QPushButton('浏览')
         self.browse_button.clicked.connect(self.browseFolder)
-        layout.addWidget(self.browse_button)
 
         self.convert_button = QPushButton('转换文件')
         self.convert_button.clicked.connect(self.convertFiles)
-        layout.addWidget(self.convert_button)
+
+        # Create a horizontal layout for the input box and buttons
+        h_layout = QHBoxLayout()
+        h_layout.addWidget(self.folder_input)
+        h_layout.addWidget(self.browse_button)
+        h_layout.addWidget(self.convert_button)
+
+        # Add the horizontal layout to the main layout
+        layout.addLayout(h_layout)
 
         self.output_label = QLabel('文件列表：')
         layout.addWidget(self.output_label)
