@@ -52,30 +52,25 @@
   ├─ /data/
   ├─ /images/
   ├─ /mbed/
-  │ └─ main.cpp
   ├─ /openmv/
-  │ ├─ car3.py
-  │ └─ PID.py
-  ├─ /RT-Thread/
-  │ └─ /applications/
-  │   ├─ commu.c
-  │   ├─ encoder.c
-  │   ├─ infrared.c
-  │   ├─ main.c
-  │   ├─ motor.c
-  │   └─ sr04.c
   ├─ /stm32_motordrive/
-  │ ├─ stm32_motordrive.epro
-  │ └─ /image/
-  │   ├─ pcb_3d.png
-  │   ├─ pcb_b.png
-  │   ├─ pcb_t.png
-  │   ├─ sch.png
-  │   ├─ version1.png
-  │   ├─ version2.png
-  │   └─ 图片1.png
-  └─ /tool/
-    └─ convert.py
+  ├─ /tool/
+  ├─ /RT-Thread/
+  └─ /openmv_disk/
+    ├─ left2.pgm
+    ├─ main.py
+    ├─ obstacle1.pgm
+    ├─ obstacle2.pgm
+    ├─ obstacle3.pgm
+    ├─ obstacle4.pgm
+    ├─ obstacle5.pgm
+    ├─ PID.py
+    ├─ right1.pgm
+    ├─ .openmv_disk
+    ├─ forward1.pgm
+    ├─ forward2.pgm
+    ├─ forward3.pgm
+    └─ left1.pgm
 
 ```
 
